@@ -32,15 +32,17 @@ namespace SendAppInsightsSummary
         [FunctionName("RunIt")]
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]HttpRequest req, ILogger log)
         {
+            // Get parameterfrom the query string
             string name = req.Query["name"];
-            if (name == "") { name = "RBI"; }
+            //...or use a default
+            if (name == "") { name = "<SOME_AI_NAME_RESOURCE>"; }
 
             DigestResult result = await GetDigestResult(GetQueryString(name), log: log);
             var message = await SendEMail(result, name, log: log);
 
-            return (ActionResult)new OkObjectResult($"Running, {result}");
+            // Return the message if not using SendGrid binding
+            return (ActionResult)new OkObjectResult(result);
         }
-
 
         private static async Task<DigestResult> GetDigestResult(string query, ILogger log)
         {
